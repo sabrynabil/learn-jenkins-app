@@ -91,6 +91,7 @@ pipeline {
                     env.STAGING_URL = sh(script : "node_modules/.bin/node-jq -r '.deploy_url' deploy.json", returnStdout : true)
                 }
             }
+        }    
         stage('prod E2E') {
             agent {
                 docker {
@@ -112,7 +113,6 @@ pipeline {
                     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'E2E-STAGING', reportTitles: '', useWrapperFileDirectly: true])
                     }
             }
-    }
         }
         stage('Aprroval') {
                 steps {
