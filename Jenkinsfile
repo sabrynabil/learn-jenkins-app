@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        /* stage('Build') {
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -19,7 +19,7 @@ pipeline {
                     ls -la
                 '''
             }
-        } */
+        } 
         stage(Tests){
             parallel{
                 stage('Test unit') {
@@ -66,6 +66,20 @@ pipeline {
                 }
             }
         }
+        stage('Deploy') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    npm install -g netlify-cli
+                    node_modules/.bin/netlify --version
+                '''
+            }
+        } 
 
     }
 
