@@ -97,7 +97,7 @@ pipeline {
                 }
              }
             environment {
-                CI_ENVIRONMENT_URL = 'https://shimmering-jalebi-092fe6.netlify.app/'
+                CI_ENVIRONMENT_URL = 'https://shimmering-jalebi-092fe6.netlify.app'
              }
 
             steps {
