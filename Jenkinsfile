@@ -3,6 +3,7 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = '3ea33bc0-6a9f-4d9d-9a15-458e1621094a'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        CI_ENVIRONMENT_URL = 'https://shimmering-jalebi-092fe6.netlify.app/'
     }
     stages {
         stage('Build') {
@@ -88,6 +89,28 @@ pipeline {
                 '''
             }
         } 
+        stage('prod E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    reuseNode true
+                }
+             }
+            environment {
+                CI_ENVIRONMENT_URL = 'https://shimmering-jalebi-092fe6.netlify.app/'
+             }
+
+            steps {
+                sh '''
+                    npx playwright test --reporter=line
+                '''
+            }
+            post {
+                always {
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'E2E-Report', reportTitles: '', useWrapperFileDirectly: true])
+                    }
+            }
+    }
 
     }
 
