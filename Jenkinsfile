@@ -23,6 +23,7 @@ pipeline {
                 '''
             }
         } 
+        // parallel stage 
         stage(Tests){
             parallel{
                 stage('Test unit') {
@@ -82,6 +83,7 @@ pipeline {
                     node_modules/.bin/netlify --version
                     echo "Deploying to Production Site ID: $NETLIFY-SITE-ID"
                     node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --prod
                 '''
             }
         } 
