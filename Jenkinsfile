@@ -88,7 +88,14 @@ pipeline {
                     node_modules/.bin/netlify deploy --dir=build
                 '''
             }
-        } 
+        }
+        stage('Aprroval') {
+                steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            input cancel: 'No iam Not', message: 'Ready for Deploy', ok: 'Yes Iam Reaady'
+                        }
+                     }
+                    } 
         stage('Deploy Prod') {
             agent {
                 docker {
