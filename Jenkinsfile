@@ -26,7 +26,7 @@ pipeline {
             }
         } 
         // parallel stage 
-        stage(Tests){
+        stage('Tests'){
             parallel{
                 stage('Test unit') {
                     agent {
@@ -83,16 +83,19 @@ pipeline {
                 sh '''
                     npm install netlify-cli@20.1.1  node-jq
                     node_modules/.bin/netlify --version
-                    echo "Deploying to Staging Site ID: $NETLIFY-SITE-ID"
+                    echo "Deploying to Staging Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --json > deploy.json
                 '''
                 stage{
-                    env.STAGING_URL = sh(script : "node_modules/.bin/node-jq -r '.deploy_url' deploy.json", returnStdout : true)
+                    env.STAGING_URL = 
+                    sh(
+                        script : "node_modules/.bin/node-jq -r '.deploy_url' deploy.json", 
+                        returnStdout : true )
                 }
             }
         }    
-        stage('prod E2E') {
+        stage('Staging E2E') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
@@ -117,7 +120,8 @@ pipeline {
         stage('Aprroval') {
                 steps {
                         timeout(time: 5, unit: 'MINUTES') {
-                            input cancel: 'No iam Not', message: 'Ready for Deploy', ok: 'Yes Iam Reaady'
+                            input message: 'Proceed with Production Deployment?', ok: 'Yes, Deploy', submitter: 'admin'
+
                         }
                      }
                     } 
