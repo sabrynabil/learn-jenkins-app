@@ -81,20 +81,21 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install netlify-cli@20.1.1  node-jq
+                    npm install netlify-cli@20.1.1 node-jq
                     node_modules/.bin/netlify --version
                     echo "Deploying to Staging Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --json > deploy.json
                 '''
                 script {
-                    env.STAGING_URL= 
-                    sh(
-                        script : "node_modules/.bin/node-jq -r '.deploy_url' deploy.json", 
-                        returnStdout : true )
+                    env.STAGING_URL = sh(
+                        script: "node_modules/.bin/node-jq -r '.deploy_url' deploy.json",
+                        returnStdout: true
+                    ).trim()
                 }
             }
-        }    
+        }
+
         stage('Staging E2E') {
             agent {
                 docker {
