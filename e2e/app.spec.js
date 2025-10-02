@@ -18,10 +18,13 @@ test('has Jenkins in the body', async ({ page }) => {
 test('has expected app version', async ({ page }) => {
   await page.goto('/');
 
-  const expectedAppVersion = process.env.REACT_APP_VERSION ? process.env.REACT_APP_VERSION : '1';
+  // REACT_APP_VERSION must be passed from Jenkins, fallback only for local dev
+  const expectedAppVersion = process.env.REACT_APP_VERSION || require('../package.json').version;
 
-  console.log(expectedAppVersion);
+  console.log("Testing app version:", expectedAppVersion);
 
-  const isVisible = await page.locator(`p:has-text("Application version: ${expectedAppVersion}")`).isVisible();
+  const isVisible = await page
+    .locator(`p:has-text("Application version: ${expectedAppVersion}")`)
+    .isVisible();
   expect(isVisible).toBeTruthy();
 });
