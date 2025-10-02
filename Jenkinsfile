@@ -4,6 +4,7 @@ pipeline {
         NETLIFY_SITE_ID = '3ea33bc0-6a9f-4d9d-9a15-458e1621094a'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
         CI_ENVIRONMENT_URL = 'https://shimmering-jalebi-092fe6.netlify.app/'
+        REACT_APP_VERSION = "1.0.$BUILD_ID"
     }
     stages {
         stage('Build') {
