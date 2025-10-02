@@ -6,6 +6,7 @@ pipeline {
         CI_ENVIRONMENT_URL = 'https://shimmering-jalebi-092fe6.netlify.app/'
         REACT_APP_VERSION = "1.0.$BUILD_ID"
     }
+    
     stages {
         stage('Docker') {
             steps{
