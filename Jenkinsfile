@@ -8,8 +8,18 @@ pipeline {
     }
 
     stages {
-
-
+        stage('AWS CLI') {
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'aws --version'
+                sh 's3 ls'
+            }
+/*
         stage('Build') {
             agent {
                 docker {
@@ -134,7 +144,7 @@ pipeline {
                 always {
                     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Prod E2E', reportTitles: '', useWrapperFileDirectly: true])
                 }
-            }
+            }*/
         }
     }
 }
