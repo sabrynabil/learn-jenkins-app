@@ -22,6 +22,10 @@ pipeline {
                         aws --version
                         aws ecs register-task-definition \
                             --cli-input-json file://aws/LearningJenkinsApp-task-prod.json
+                        aws ecs update-service \
+                            --cluster LearningJenkinsApp-prod \
+                                --service LearningJenkinsApp-taskdefinition-prod-service-1j2h73 \
+                                    --task-definition LearningJenkinsApp-taskdefinition-prod:2
                     '''
                 }
             }
