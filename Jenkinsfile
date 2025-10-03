@@ -2,11 +2,13 @@ pipeline {
     agent any
 
     environment {
-        NETLIFY_SITE_ID = '3ea33bc0-6a9f-4d9d-9a15-458e1621094a'
+        NETLIFY_SITE_ID = 'YOUR NETLIFY SITE ID'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
         REACT_APP_VERSION = "1.0.$BUILD_ID"
     }
+
     stages {
+
         stage('Build') {
             agent {
                 docker {
@@ -25,26 +27,23 @@ pipeline {
                 '''
             }
         }
-        stage('AWS CLI') {
+
+        stage('AWS') {
             agent {
                 docker {
                     image 'amazon/aws-cli'
                     reuseNode true
-                    args '--entrypoint=""'
+                    args "--entrypoint=''"
                 }
             }
-            environment{
-                AWS_S3_BUCKET = 'learning-jenkins-123436'
+            environment {
+                AWS_S3_BUCKET = 'your-aws-s3-bucket-name'
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
-                    aws s3 ls
-                    echo hello s3 > index.html
-                    aws s3 cp index.html s3://$AWS_S3_BUCKET/index.html
-                    aws s3 sync build s3://$AWS_S3_BUCKET
-
-
+                        aws --version
+                        aws s3 sync build s3://$AWS_S3_BUCKET
                     '''
                 }
             }
@@ -97,6 +96,7 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy staging') {
             agent {
                 docker {
@@ -110,42 +110,22 @@ pipeline {
             }
 
             steps {
-                script {
-                    sh '''
-                        netlify --version
-                        echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
-                        netlify status
-                        netlify deploy --dir=build --json > deploy-output.json
-                    '''
-                    
-                    // Extract deploy_url from JSON and assign to Jenkins env
-                    env.CI_ENVIRONMENT_URL = sh(
-                        script: "jq -r '.deploy_url' deploy-output.json",
-                        returnStdout: true
-                    ).trim()
-
-                    echo "Staging URL: ${env.CI_ENVIRONMENT_URL}"
-
-                    sh "npx playwright test --reporter=html"
-                }
+                sh '''
+                    netlify --version
+                    echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
+                    netlify status
+                    netlify deploy --dir=build --json > deploy-output.json
+                    CI_ENVIRONMENT_URL=$(jq -r '.deploy_url' deploy-output.json)
+                    npx playwright test  --reporter=html
+                '''
             }
 
             post {
                 always {
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: false,
-                        reportDir: 'playwright-report',
-                        reportFiles: 'index.html',
-                        reportName: 'Staging E2E',
-                        reportTitles: '',
-                        useWrapperFileDirectly: true
-                    ])
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Staging E2E', reportTitles: '', useWrapperFileDirectly: true])
                 }
             }
         }
-
 
         stage('Deploy prod') {
             agent {
@@ -156,7 +136,7 @@ pipeline {
             }
 
             environment {
-                CI_ENVIRONMENT_URL = 'https://shimmering-jalebi-092fe6.netlify.app/'
+                CI_ENVIRONMENT_URL = 'YOUR NETLIFY SITE URL'
             }
 
             steps {
