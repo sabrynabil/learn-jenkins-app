@@ -21,12 +21,11 @@ pipeline {
                     sh '''
                         aws --version
                         yum install -y jq
-                        aws ecs register-task-definition \
                         CLUSTER_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/LearningJenkinsApp-task-prod.json | jq '.taskDefinition.revision')
                         aws ecs update-service \
                             --cluster LearningJenkinsApp-prod \
                                 --service LearningJenkinsApp-taskdefinition-prod-service-1j2h73 \
-                                    --task-definition LearningJenkinsApp-taskdefinition-prod:CLUSTER_TD_REVISION
+                                    --task-definition LearningJenkinsApp-taskdefinition-prod:$CLUSTER_TD_REVISION
                         echo $CLUSTER_TD_REVISION
                     '''
                 }
