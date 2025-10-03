@@ -7,7 +7,24 @@ pipeline {
         REACT_APP_VERSION = "1.0.$BUILD_ID"
     }
 
-    stages {
+        stage('Build') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    ls -la
+                    node --version
+                    npm --version
+                    npm ci
+                    npm run build
+                    ls -la
+                '''
+            }
+        }
         stage('AWS CLI') {
             agent {
                 docker {
@@ -30,24 +47,6 @@ pipeline {
 
                     '''
                 }
-            }
-/*
-        stage('Build') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                    ls -la
-                    node --version
-                    npm --version
-                    npm ci
-                    npm run build
-                    ls -la
-                '''
             }
         }
 
@@ -156,7 +155,7 @@ pipeline {
                 always {
                     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Prod E2E', reportTitles: '', useWrapperFileDirectly: true])
                 }
-            }*/
+            }
         }
     }
 }
