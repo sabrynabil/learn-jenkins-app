@@ -97,7 +97,6 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy staging') {
             agent {
                 docker {
@@ -111,22 +110,42 @@ pipeline {
             }
 
             steps {
-                sh '''
-                    netlify --version
-                    echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
-                    netlify status
-                    netlify deploy --dir=build --json > deploy-output.json
-                    CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' deploy-output.json)
-                    npx playwright test  --reporter=html
-                '''
+                script {
+                    sh '''
+                        netlify --version
+                        echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
+                        netlify status
+                        netlify deploy --dir=build --json > deploy-output.json
+                    '''
+                    
+                    // Extract deploy_url from JSON and assign to Jenkins env
+                    env.CI_ENVIRONMENT_URL = sh(
+                        script: "jq -r '.deploy_url' deploy-output.json",
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Staging URL: ${env.CI_ENVIRONMENT_URL}"
+
+                    sh "npx playwright test --reporter=html"
+                }
             }
 
             post {
                 always {
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Staging E2E', reportTitles: '', useWrapperFileDirectly: true])
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: false,
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Staging E2E',
+                        reportTitles: '',
+                        useWrapperFileDirectly: true
+                    ])
                 }
             }
         }
+
 
         stage('Deploy prod') {
             agent {
