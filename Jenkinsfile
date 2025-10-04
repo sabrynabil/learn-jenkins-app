@@ -36,7 +36,7 @@ pipeline {
                 docker {
                     image 'docker:24.0.5'   // lightweight Docker client
                     reuseNode true
-                    args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
