@@ -32,12 +32,24 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage(' Build and Push Docker Image') {
+                agent {
+                    docker {
+                        image 'amazon/aws-cli'
+                        reuseNode true
+                        args "-u root --entrypoint=''"
+                    }
+            }
             steps {
-                sh 'docker build  -t my-app . '
+                sh '''
+                    amazon-linux-extras install docker
+                    service docker start
+                    docker --version
+                    docker build  -t my-app . 
+                '''
             }
         }
-        stage('AWS') {
+        stage('DEploy to AWS') {
             agent {
                 docker {
                     image 'amazon/aws-cli'
