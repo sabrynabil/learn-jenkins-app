@@ -34,16 +34,16 @@ pipeline {
         stage('Build Docker image') {
             agent {
                 docker {
-                    image 'amazon/aws-cli'
+                    image 'docker:24.0.5'   // lightweight Docker client
                     reuseNode true
-                    args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
+                    args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
-
             steps {
                 sh '''
-                    amazon-linux-extras install docker
-                    docker build -t myjenkinsapp .
+                    docker --version
+                    docker build -t my-app .
+
                 '''
             }
         }        
