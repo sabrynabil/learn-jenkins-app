@@ -13,7 +13,7 @@ pipeline {
 
 
 
-        stage('Build') {
+     /* stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -30,7 +30,7 @@ pipeline {
                     ls -la
                 '''
             }
-        }
+        }*/
         stage('Build Docker image') {
             agent {
                 docker {
